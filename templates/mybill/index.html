@@ -1,0 +1,23 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'mybill/style.css' %}" />
+
+
+<form action="{% url 'mybill:vote' question.id %}" method="post">
+{% csrf_token %}
+<input type="text" name="amount">
+
+<input type="submit" value="Vote" />
+</form>
+
+
+
+Hallo Bills
+{% if latest_bills_list %}
+<ul>
+    {% for bill in latest_bills_list %}
+    <li><a href="{% url 'mybill:detail' bill.id %}">{{ question.question_text }}</a></li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No bills are available.</p>
+{% endif %}
