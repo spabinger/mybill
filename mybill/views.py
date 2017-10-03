@@ -23,10 +23,10 @@ class IndexView(generic.ListView):
 
 
 class DetailView(generic.DetailView):
-   model = Question
-   template_name = "mybill/detail.html"
+    template_name = "mybill/detail.html"
+    model = Question
 
-   def get_queryset(self):
+    def get_queryset(self):
        """
        Excludes any questions that aren't published yet.
        """
@@ -53,6 +53,7 @@ class ResultsView(generic.DetailView):
 
 
 def vote(request, question_id):
+    print "muh"
     question = get_object_or_404(Question, pk=question_id)
     try:
         selected_choice = question.choice_set.get(pk=request.POST['choice'])
