@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Add a new receipt{% endblock %}
+
+{% block content %}
+
+    <a href="{% url 'add_bill_complex' %}" class="btn btn-secondary">Complex</a>
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {% include 'includes/form.html' %}
+
+        <button type="submit" class="btn btn-success">Store</button>
+    </form>
+
+{% endblock %}
+
+

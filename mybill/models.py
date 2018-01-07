@@ -66,7 +66,7 @@ class Transaction(models.Model):
 
 class Bill(Transaction):
     store = models.ForeignKey(Store)
-    image = models.FileField()
+    image = models.ImageField(upload_to='images/')
     direction = "outgoing"
 
     def __str__(self):

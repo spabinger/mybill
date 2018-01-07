@@ -1,21 +1,19 @@
 {% extends 'base.html' %}
-
 {% load widget_tweaks %}
-
-{% block title %}Add a new receipt{% endblock %}
-
-{% block breadcrumb %}
-    <li class="breadcrumb-item active">LALA</li>
-{% endblock %}
+{% block title %}MyBill{% endblock %}
 
 {% block content %}
-    <form method="post" novalidate>
-        {% csrf_token %}
-        {% include 'includes/form.html' %}
 
-
-
-        <button type="submit" class="btn btn-success">Post</button>
-    </form>
+    <p>
+        <a href="{% url 'add_bill_simple' %}" class="btn btn-secondary">Add bill</a>
+    </p>
+    <p>
+        <a href="{% url 'add_bill_complex' %}" class="btn btn-secondary">Add bill full</a>
+    </p>
+    <p>
+        <a href="{% url 'bills' %}" class="btn btn-secondary">View transactions</a>
+    </p>
 
 {% endblock %}
+
+

@@ -5,10 +5,10 @@ from django.utils import timezone
 from django.views.generic import CreateView, ListView, DetailView
 from django.contrib.auth.decorators import login_required
 
-from mybill.forms import BillForm
+from mybill.forms import BillFormSimple, BillFormComplex
 from .models import Bill, Store, StoreBrand, StoreType
 from django.urls import reverse_lazy
-
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 
@@ -18,8 +18,39 @@ def about(request):
 
 @login_required
 def home(request):
+    return render(request, 'mybill/home.html')
+
+
+@login_required
+def add_bill_simple(request):
     if request.method == 'POST':
-        form = BillForm(request.POST)
+        form = BillFormSimple(request.POST, request.FILES)
+        if form.is_valid():
+            bill = form.save(commit=False)
+
+            ## TODO Parse image
+
+            ## These entries will be filled later
+            bill.amount = 1.0
+            bill.date = "2010-01-01"
+            bill.store = Store.objects.all()[0]
+
+
+            bill.created_by = request.user
+
+            bill.save()
+
+            return redirect('bills', pk=bill.pk)  # TODO: redirect to the created topic page
+    else:
+        form = BillFormSimple()
+
+    return render(request, 'mybill/add_bill_simple.html', {'form': form})
+
+
+@login_required
+def add_bill_complex(request):
+    if request.method == 'POST':
+        form = BillFormComplex(request.POST, request.FILES)
         if form.is_valid():
             bill = form.save(commit=False)
 
@@ -27,25 +58,14 @@ def home(request):
 
             bill.save()
 
-            #topic.board = board
-            #topic.starter = user
-            #topic.save()
-            #post = Post.objects.create(
-            #    message=form.cleaned_data.get('message'),
-            #    topic=topic,
-            #    created_by=user
-            #)
             return redirect('bills', pk=bill.pk)  # TODO: redirect to the created topic page
     else:
-        form = BillForm()
+        form = BillFormComplex()
 
-    return render(request, 'mybill/home.html', {'form': form})
-
-
+    return render(request, 'mybill/add_bill_complex.html', {'form': form})
 
 
-
-class BillListView(ListView):
+class BillListView(LoginRequiredMixin, ListView):
     model = Bill
     context_object_name = 'bills'
     template_name = 'mybill/list_bills.html'
@@ -61,10 +81,8 @@ class BillListView(ListView):
         return self.bill
 
 
-class BillDetailView(DetailView):
-
+class BillDetailView(LoginRequiredMixin, DetailView):
     model = Bill
-
     template_name = 'mybill/view_bill.html'
 
     #def get_context_data(self, **kwargs):
@@ -75,32 +93,36 @@ class BillDetailView(DetailView):
 
 
 
-class StoreAddView(CreateView):
+class StoreAddView(LoginRequiredMixin, CreateView):
     model = Store
     fields = ['name', 'brand']
     #form_class = StoreForm
     success_url = reverse_lazy('stores')
     template_name = 'mybill/new_model_template.html'
 
+class StoreDetailView(LoginRequiredMixin, DetailView):
+    model = Bill
+    template_name = 'mybill/view_store.html'
 
-class StoreListView(ListView):
+
+class StoreListView(LoginRequiredMixin, ListView):
     model = Store
     template_name = 'mybill/list_template.html'
 
 
-class StoreBrandAddView(CreateView):
+class StoreBrandAddView(LoginRequiredMixin, CreateView):
     model = StoreBrand
     fields = ['name', 'store_type']
     success_url = reverse_lazy('store_brands')
     template_name = 'mybill/new_model_template.html'
 
 
-class StoreBrandListView(ListView):
+class StoreBrandListView(LoginRequiredMixin, ListView):
     model = StoreBrand
     template_name = 'mybill/list_template.html'
 
 
-class StoreTypeAddView(CreateView):
+class StoreTypeAddView(LoginRequiredMixin, CreateView):
     model = StoreType
     fields = ['store_type']
     #form_class = StoreForm
@@ -108,7 +130,7 @@ class StoreTypeAddView(CreateView):
     template_name = 'mybill/new_model_template.html'
 
 
-class StoreTypeListView(ListView):
+class StoreTypeListView(LoginRequiredMixin, ListView):
     model = StoreType
     template_name = 'mybill/list_template.html'
 

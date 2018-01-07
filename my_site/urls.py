@@ -13,23 +13,22 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import include,url
+from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-
 from accounts import views as accounts_views
 from mybill import views as mybill_views
-#from django.urls import path
+
 
 urlpatterns = [
-    #   url(r'^admin/', admin.site.urls),
-
+    url(r'^admin/', admin.site.urls),
 
     url(r'^$', mybill_views.home, name='home'),
 
     url(r'^about/$', mybill_views.about, name='about'),
 
     url(r'^add_store/$', mybill_views.StoreAddView.as_view(), name='add_store'),
+    url(r'^view_store/(?P<pk>[-\w]+)', mybill_views.StoreDetailView.as_view(), name='view_store'),
     url(r'^stores/$', mybill_views.StoreListView.as_view(), name='stores'),
 
     url(r'^add_store_brand/$', mybill_views.StoreBrandAddView.as_view(), name='add_store_brand'),
@@ -39,9 +38,9 @@ urlpatterns = [
     url(r'^store_types/$', mybill_views.StoreTypeListView.as_view(), name='store_types'),
 
     url(r'^bills/$', mybill_views.BillListView.as_view(), name='bills'),
-    #url(r'^view_bill/<int:pk>$', mybill_views.BillDetailView.as_view(), name='view_bill'),
-    #path('view_bill/<int:pk>', mybill_views.BillDetailView.as_view(), name='view_bill'),
-    url(r'view_bill/(?P<pk>[-\w]+)', mybill_views.BillDetailView.as_view(), name='view_bill'),
+    url(r'^view_bill/(?P<pk>[-\w]+)', mybill_views.BillDetailView.as_view(), name='view_bill'),
+    url(r'^add_bill_simple$', mybill_views.add_bill_simple, name='add_bill_simple'),
+    url(r'^add_bill_complex$', mybill_views.add_bill_complex, name='add_bill_complex'),
 
     url(r'^signup/$', accounts_views.signup, name='signup'),
     url(r'^login/$', auth_views.LoginView.as_view(template_name='accounts/login.html'), name='login'),
