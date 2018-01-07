@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  asdfasdf
+{% endblock %}
+
+
+
+
+{% block content %}
+
+
+<h1>Articles</h1>
+
+{% for instance in object_list %}
+    <table class="table mb-4">
+        <thead class="thead-inverse">
+        <tr>
+            {% for name in instance.get_field_names_generic_view %}
+                <th>{{ name }}</th>
+
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+            {% for value in instance.get_fields_generic_view %}
+
+                {% if value %}
+                    <td>{{ value }}</td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        </tbody>
+    </table>
+
+
+
+{% empty %}
+    <li>No entries yet.</li>
+{% endfor %}
+
+
+{% endblock %}

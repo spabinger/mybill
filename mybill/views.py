@@ -1,72 +1,116 @@
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from django.views import generic
-from .models import Choice, Question, Bill
+from django.views.generic import CreateView, ListView, DetailView
+from django.contrib.auth.decorators import login_required
+
+from mybill.forms import BillForm
+from .models import Bill, Store, StoreBrand, StoreType
+from django.urls import reverse_lazy
 
 
-def detail(request, question_id):
-    return HttpResponse("You're looking at question %s." % question_id)
+
+
+def about(request):
+    return render(request, 'mybill/about.html')
+
+
+@login_required
+def home(request):
+    if request.method == 'POST':
+        form = BillForm(request.POST)
+        if form.is_valid():
+            bill = form.save(commit=False)
+
+            bill.created_by = request.user
+
+            bill.save()
+
+            #topic.board = board
+            #topic.starter = user
+            #topic.save()
+            #post = Post.objects.create(
+            #    message=form.cleaned_data.get('message'),
+            #    topic=topic,
+            #    created_by=user
+            #)
+            return redirect('bills', pk=bill.pk)  # TODO: redirect to the created topic page
+    else:
+        form = BillForm()
+
+    return render(request, 'mybill/home.html', {'form': form})
 
 
 
-class IndexView(generic.ListView):
-   template_name = "mybill/index.html"
-   context_object_name = "latest_bills_list"
-
-   def get_queryset(self):
-       return Bill.objects.all()
-       #return Bill.objects.filter(
-       #    pub_date__lte=timezone.now()
-       #    ).order_by('-pub_date')[:5]
 
 
-class DetailView(generic.DetailView):
-    template_name = "mybill/detail.html"
-    model = Question
+class BillListView(ListView):
+    model = Bill
+    context_object_name = 'bills'
+    template_name = 'mybill/list_bills.html'
+    paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        kwargs['bill'] = self.bill
+        return super().get_context_data(**kwargs)
 
     def get_queryset(self):
-       """
-       Excludes any questions that aren't published yet.
-       """
-       return Question.objects.filter(pub_date__lte=timezone.now())
+        #self.bill = get_object_or_404(Bill, pk=self.kwargs.get('pk'))
+        self.bill = Bill.objects.all()
+        return self.bill
 
 
-class ResultsView(generic.DetailView):
-   model = Question
-   template_name = "mybill/results.html"
+class BillDetailView(DetailView):
 
-   def vote(request, question_id):
-       p = get_object_or_404(Question, pk=question_id)
-       try:
-           selected_choice = p.choice_set.get(pk=request.POST['choice'])
-       except (KeyError, Choice.DoesNotExist):
-           return render(request, 'mybill/detail.html', {
-               'question': p,
-               'error_message': "You didn't select a choice",
-           })
-       else:
-           selected_choice.votes += 1
-           selected_choice.save()
-           return HttpResponseRedirect(reverse('mybill:results', args=(p.id,)))
+    model = Bill
+
+    template_name = 'mybill/view_bill.html'
+
+    #def get_context_data(self, **kwargs):
+    #    context = super(ArticleDetailView, self).get_context_data(**kwargs)
+    #    context['now'] = timezone.now()
+    #    return context
 
 
-def vote(request, question_id):
-    print "muh"
-    question = get_object_or_404(Question, pk=question_id)
-    try:
-        selected_choice = question.choice_set.get(pk=request.POST['choice'])
-    except (KeyError, Choice.DoesNotExist):
-        # Redisplay the question voting form.
-        return render(request, 'polls/detail.html', {
-            'question': question,
-            'error_message': "You didn't select a choice.",
-        })
-    else:
-        selected_choice.votes += 1
-        selected_choice.save()
-        # Always return an HttpResponseRedirect after successfully dealing
-        # with POST data. This prevents data from being posted twice if a
-        # user hits the Back button.
-        return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+
+
+class StoreAddView(CreateView):
+    model = Store
+    fields = ['name', 'brand']
+    #form_class = StoreForm
+    success_url = reverse_lazy('stores')
+    template_name = 'mybill/new_model_template.html'
+
+
+class StoreListView(ListView):
+    model = Store
+    template_name = 'mybill/list_template.html'
+
+
+class StoreBrandAddView(CreateView):
+    model = StoreBrand
+    fields = ['name', 'store_type']
+    success_url = reverse_lazy('store_brands')
+    template_name = 'mybill/new_model_template.html'
+
+
+class StoreBrandListView(ListView):
+    model = StoreBrand
+    template_name = 'mybill/list_template.html'
+
+
+class StoreTypeAddView(CreateView):
+    model = StoreType
+    fields = ['store_type']
+    #form_class = StoreForm
+    success_url = reverse_lazy('store_types')
+    template_name = 'mybill/new_model_template.html'
+
+
+class StoreTypeListView(ListView):
+    model = StoreType
+    template_name = 'mybill/list_template.html'
+
+
+

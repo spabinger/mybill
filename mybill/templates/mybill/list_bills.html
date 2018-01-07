@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    asdfasdf
+{% endblock %}
+
+
+{% block content %}
+    <div class="mb-4">
+        <a href="{% url 'home' %}" class="btn btn-primary">New bill</a>
+    </div>
+
+    <table class="table mb-4">
+        <thead class="thead-inverse">
+        <tr>
+            <th>Id</th>
+            <th>Amount</th>
+            <th>Store</th>
+            <th>asdf</th>
+            <th>asdf</th>
+            <th>asdf</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for bill in bills %}
+            <tr>
+                <td><a href="{% url 'view_bill' bill.pk %}">{{ bill.pk }}</a></td>
+                <td>{{ bill.amount }}</td>
+                <td>{{ bill.store }}</td>
+                <td>{{ bill.created_by }}</td>
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% include 'includes/pagination.html' %}
+
+{% endblock %}

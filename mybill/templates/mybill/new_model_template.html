@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}Add a new xxx TODO{% endblock %}
+
+{% block content %}
+    <form action="" method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Save" />
+    </form>
+{% endblock %}
